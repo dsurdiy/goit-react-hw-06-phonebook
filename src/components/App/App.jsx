@@ -1,29 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { FcContacts } from 'react-icons/fc';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { ContactForm } from 'components/ContactForm/ContactForm';
 import { ContactList } from 'components/ContactList/ContactList';
 import { Filter } from 'components/Filter/Filter';
 import { Container, AppTitle, ContactsTitle } from './App.styled';
-import { FcContacts } from 'react-icons/fc';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-const LS_KEY = 'saved_contacts';
+import { add, remove, changeFilter } from 'redux/contactsActions';
 
 export const App = () => {
-  const [contacts, setContacts] = useState(() => {
-    const savedContacts = JSON.parse(window.localStorage.getItem(LS_KEY));
-
-    if (!savedContacts) {
-      return [];
-    }
-
-    return savedContacts;
-  });
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    window.localStorage.setItem(LS_KEY, JSON.stringify(contacts));
-  }, [contacts]);
+  const contacts = useSelector(state => state.contacts.items);
+  const filter = useSelector(state => state.contacts.filter);
+  const dispatch = useDispatch();
 
   const formSubmitHandler = newContact => {
     const normalizedNewContactsName = newContact.name.toLowerCase();
@@ -35,7 +23,7 @@ export const App = () => {
       return toast.warn(`${newContact.name} is already in contacts`);
     }
 
-    setContacts([newContact, ...contacts]);
+    dispatch(add(newContact));
   };
 
   const getFilteredContacts = () => {
@@ -47,12 +35,12 @@ export const App = () => {
   };
 
   const deleteContact = contactId => {
-    setContacts(contacts => contacts.filter(({ id }) => id !== contactId));
+    dispatch(remove(contactId));
   };
 
   const handleFilterChange = e => {
     const newFilter = e.target.value;
-    setFilter(newFilter);
+    dispatch(changeFilter(newFilter));
   };
 
   return (
