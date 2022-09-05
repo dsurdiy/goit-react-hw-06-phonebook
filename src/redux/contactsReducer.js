@@ -1,7 +1,9 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
 import { add, remove, changeFilter } from './contactsActions';
 
-export const contacts = createReducer(
+const contactsReducer = createReducer(
   { items: [], filter: '' },
   {
     [add]: (state, action) => ({
@@ -17,4 +19,14 @@ export const contacts = createReducer(
       filter: action.payload,
     }),
   }
+);
+
+const persistConfig = {
+  key: 'root',
+  storage,
+};
+
+export const persistedContactsReducer = persistReducer(
+  persistConfig,
+  contactsReducer
 );
